@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-project-media-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-project-media-manager
+  template:
+    metadata:
+      labels:
+        app: mag20-project-media-manager
+    spec:
+      containers:
+        - image: mag20/go-project-media-manager
+          name: mag20-project-media-manager
+          env:
+            - name: PORT
+              value: "8008"
+            - name: TIMESHIFT_GRPC_SERVER
+              value: mag20-timeshift
+            - name: TIMESHIFT_GRPC_PORT
+              value: "9004"
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: mag20-media-metadata
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: MEDIA_CHUNKS_METADATA_GRPC_SERVER
+              value: mag20-media-chunks
+            - name: MEDIA_CHUNKS_METADATA_GRPC_PORT
+              value: "9003"
+            - name: RABBIT_HOST
+              value: mag20-rmq
+            - name: RABBIT_PORT
+              value: "5672"
+          ports:
+            - containerPort: 8008
+              name: p-media
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-project-media-manager
+spec:
+  type: NodePort
+  ports:
+    - port: 8008
+      name: "p-media"
+      protocol: TCP
+      targetPort: p-media
+  selector:
+    app: mag20-project-media-manager

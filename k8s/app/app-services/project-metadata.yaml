@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-project-metadata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-project-metadata
+  template:
+    metadata:
+      labels:
+        app: mag20-project-metadata
+    spec:
+      containers:
+        - image: mag20/project-metadata
+          name: mag20-project-metadata
+          env:
+            - name: KUMULUZEE_GRPC_CLIENTS0_ADDRESS
+              value: mag20-aws-storage
+            - name: KUMULUZEE_GRPC_CLIENTS0_PORT
+              value: "9001"
+          ports:
+            - containerPort: 8007
+              name: project-meta1
+              protocol: TCP
+            - containerPort: 9005
+              name: project-meta2
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-project-metadata
+spec:
+  type: NodePort
+  ports:
+    - port: 8007
+      name: "project-meta1"
+      protocol: TCP
+      targetPort: project-meta1
+    - port: 9005
+      name: "project-meta2"
+      protocol: TCP
+      targetPort: project-meta2
+  selector:
+    app: mag20-project-metadata

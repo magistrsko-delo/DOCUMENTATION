@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-worker-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-worker-image
+  template:
+    metadata:
+      labels:
+        app: mag20-worker-image
+    spec:
+      containers:
+        - image: mag20/go-image-worker:latest
+          name: mag20-worker-image
+          env:
+            - name: RABBIT_HOST
+              value: "51.138.118.235"
+            - name: RABBIT_PORT
+              value: "5672"
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: "52.143.27.127"
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: TIMESHIFT_GRPC_SERVER
+              value: "51.105.213.37"
+            - name: TIMESHIFT_GRPC_PORT
+              value: "9004"
+            - name: AWS_STORAGE_GRPC_SERVER
+              value: "52.143.9.202"
+            - name: AWS_STORAGE_GRPC_PORT
+              value: "9001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-worker-image
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4001
+      name: "worker-image"
+      protocol: TCP
+  selector:
+    app: mag20-worker-image

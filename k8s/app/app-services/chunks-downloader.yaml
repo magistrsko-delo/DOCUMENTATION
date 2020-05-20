@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-chunks-downloader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-chunks-downloader
+  template:
+    metadata:
+      labels:
+        app: mag20-chunks-downloader
+    spec:
+      containers:
+        - image: mag20/go-chunks-downloader
+          name: mag20-chunks-downloader
+          env:
+            - name: AWS_STORAGE_URL
+              value: http://mag20-aws-storage:8002/
+          ports:
+            - containerPort: 8005
+              name: downloader-http
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-chunks-downloader
+spec:
+  type: NodePort
+  ports:
+    - port: 8005
+      name: "downloader-http"
+      protocol: TCP
+      targetPort: downloader-http
+  selector:
+    app: mag20-chunks-downloader

@@ -1,0 +1,360 @@
+version: "3"
+
+networks:
+  mag-app:
+    driver: bridge
+
+services:
+  etcd:
+    image: quay.io/coreos/etcd:latest
+    container_name: mag20-etcd
+    ports:
+        - "2379:2379"
+    command: >-
+        /usr/local/bin/etcd
+        -name node1
+        -advertise-client-urls http://etcd:2379
+        -listen-client-urls http://0.0.0.0:2379
+        -initial-advertise-peer-urls http://etcd:2380
+        -listen-peer-urls http://0.0.0.0:2380
+        -initial-cluster node1=http://etcd:2380
+        -cors="*"
+    networks:
+        - mag-app
+  etcd-viwer:
+    image: nikfoundas/etcd-viewer
+    container_name: mag20-etcd-viewer
+    ports:
+        - 9080:8080
+    networks:
+        - mag-app
+    depends_on:
+        - etcd
+  rabbit-mq-broker-segmenter:
+    image: rabbitmq:3-management
+    container_name: mag20-rabbit-mq-segmenter
+    hostname: mag20-rabbit-host-segmenter
+    ports:
+        - 4369:4369
+        - 5671:5671
+        - 5672:5672
+        - 15672:15672
+    environment:
+        - RABBITMQ_DEFAULT_USER:uros
+        - RABBITMQ_DEFAULT_PASS:uros123
+    networks:
+        - mag-app
+  rabbit-mq-broker-media-cutter:
+    image: rabbitmq:3-management
+    container_name: mag20-rabbit-mq-cutter
+    hostname: mag20-rabbit-host-cutter
+    ports:
+        - 43691:4369
+        - 56711:5671
+        - 56721:5672
+        - 15671:15672
+    environment:
+        - RABBITMQ_DEFAULT_USER:uros
+        - RABBITMQ_DEFAULT_PASS:uros123
+    networks:
+        - mag-app
+  mag20-media-metadata:
+    image: mag20/media-metadata
+    container_name: mag20-media-metadata
+    environment:
+        KUMULUZEE_GRPC_SERVER_URL: mag-app
+        KUMULUZEE_GRPC_SERVER_HTTP_PORT: 9002
+    ports:
+        - 8001:8001
+        - 9002:9002
+    networks:
+        - mag-app
+  mag20-chunks-metadata:
+    image: mag20/chunks-metadata
+    container_name: mag20-chunks-metadata
+    ports:
+        - 8004:8004
+        - 9003:9003
+    environment:
+        KUMULUZEE_GRPC_SERVER_URL: mag-app
+        KUMULUZEE_GRPC_SERVER_HTTP_PORT: 9003
+    networks:
+        - mag-app
+  mag20-aws-storage:
+    image: mag20/aws-storage
+    container_name: mag20-aws-storage
+    ports:
+        - 8002:8002
+        - 9001:9001
+    environment:
+        KUMULUZEE_CONFIG_ETCD_HOSTS: http://etcd:2379
+        KUMULUZEE_GRPC_SERVER_URL: mag-app
+        KUMULUZEE_GRPC_SERVER_HTTP_PORT: 9001
+    depends_on:
+        - etcd
+    networks:
+        - mag-app
+  mag20-media-manager:
+    image: mag20/media-manager
+    container_name: mag20-media-manager
+    ports:
+        - 8003:8003
+    environment:
+        KUMULUZEE_CONFIG_ETCD_HOSTS: http://etcd:2379
+        APPPROPERTIES_RABBITMQ_HOST: rabbit-mq-broker-segmenter
+        APPPROPERTIES_SERVICES_AWSSTORAGE_URL: http://mag20-aws-storage:8002/
+        APPPROPERTIES_SERVICES_MEDIAMETADATA_URL: http://mag20-media-metadata:8001/
+        APPPROPERTIES_SERVICES_MEDIACHUNKS_URL: http://mag20-chunks-metadata:8004/
+        KUMULUZEE_GRPC_CLIENTS0_ADDRESS: mag20-aws-storage
+        KUMULUZEE_GRPC_CLIENTS0_PORT: 9001
+        KUMULUZEE_GRPC_CLIENTS1_ADDRESS: mag20-media-metadata
+        KUMULUZEE_GRPC_CLIENTS1_PORT: 9002
+    depends_on:
+        - etcd
+        - mag20-media-metadata
+        - mag20-aws-storage
+        - rabbit-mq-broker-segmenter
+        - mag20-chunks-metadata
+    networks:
+        - mag-app
+  mag20-project-metadata:
+    image: mag20/project-metadata
+    container_name: mag20-project-metadata
+    ports:
+        - 8007:8007
+        - 9005:9005
+    environment:
+        KUMULUZEE_GRPC_CLIENTS0_ADDRESS: mag20-aws-storage
+        KUMULUZEE_GRPC_CLIENTS0_PORT: 9001
+        KUMULUZEE_GRPC_SERVER_URL: mag-app
+        KUMULUZEE_GRPC_SERVER_HTTP_PORT: 9005
+    depends_on:
+        - etcd
+        - mag20-aws-storage
+    networks:
+        - mag-app
+
+    image: mag20/go-chunks-downloader
+    container_name: mag20-go-chunks-downloader
+    ports:
+        - 8005:8005
+    environment:
+        AWS_STORAGE_URL: http://mag20-aws-storage:8002/
+    depends_on:
+        - mag20-aws-storage
+    networks:
+        - mag-app
+  mag20-sequence-service:
+    image: mag20/sequence-service
+    container_name: mag20-sequence-service
+    ports:
+        - 8009:8009
+        - 9006:9006
+    environment:
+        KUMULUZEE_GRPC_SERVER_URL: mag-app
+        KUMULUZEE_GRPC_SERVER_HTTP_PORT: 9006
+    depends_on:
+        - etcd
+    networks:
+        - mag-app
+  mag20-go-chunks-downloader:
+    image: mag20/go-chunks-downloader
+    container_name: mag20-go-chunks-downloader
+    ports:
+        - 8005:8005
+    environment:
+        AWS_STORAGE_URL: http://mag20-aws-storage:8002/
+    depends_on:
+        - mag20-aws-storage
+    networks:
+        - mag-app
+  mag20-go-time-shift-api:
+    image: mag20/go-time-shift-api
+    container_name: mag20-go-time-shift-api
+    ports:
+        - 9004:9004
+    environment:
+        PORT: 9004
+        URL: mag-app
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        CHUNK_METADATA_GRPC_SERVER: mag20-chunks-metadata
+        CHUNK_METADATA_GRPC_PORT: 9003
+        SEQUENCE_SERVICE_GRPC_SERVER: mag20-sequence-service
+        SEQUENCE_SERVICE_GRPC_PORT: 9006
+        MEDIA_MANAGER_URL: http://192.168.1.8:8003/
+        CHUNK_DOWNLOADER_URL: http://192.168.1.8:8005/
+    depends_on:
+        - mag20-media-metadata
+        - mag20-chunks-metadata
+        - mag20-media-manager
+        - mag20-sequence-service
+    networks:
+        - mag-app
+  mag20-go-hls-stream-player:
+    image: mag20/go-hls-stream-player
+    container_name: mag20-go-hls-stream-player
+    ports:
+        - 8006:8006
+    environment:
+        PORT: 8006
+        URL: http://192.168.1.8:8006/
+        TIMESHIFT_GRPC_SERVER: mag20-go-time-shift-api
+        TIMESHIFT_GRPC_PORT: 9004
+    depends_on:
+        - mag20-go-time-shift-api
+    networks:
+        - mag-app
+  mag20-go-project-media-manager:
+    image: mag20/go-project-media-manager
+    container_name: mag20-go-project-media-manager
+    ports:
+        - 8008:8008
+    environment:
+        PORT: 8008
+        TIMESHIFT_GRPC_SERVER: mag20-go-time-shift-api
+        TIMESHIFT_GRPC_PORT: 9004
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        MEDIA_CHUNKS_METADATA_GRPC_SERVER: mag20-chunks-metadata
+        MEDIA_CHUNKS_METADATA_GRPC_PORT: 9003
+        RABBIT_HOST: rabbit-mq-broker-media-cutter
+        RABBIT_PORT: 5672
+    depends_on:
+        - mag20-go-time-shift-api
+        - mag20-chunks-metadata
+        - rabbit-mq-broker-media-cutter
+        - mag20-media-metadata
+    networks:
+        - mag-app
+  mag20-go-sequence-manager:
+    image: mag20/go-sequence-manager
+    container_name: mag20-go-sequence-manager
+    ports:
+        - 8010:8010
+    environment:
+        PORT: 8010
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        SEQUENCE_SERVICE_GRPC_SERVER: mag20-sequence-service
+        SEQUENCE_SERVICE_GRPC_PORT: 9006
+        RABBIT_HOST: rabbit-mq-broker-segmenter
+        RABBIT_PORT: 5672
+    depends_on:
+        - mag20-media-metadata
+        - mag20-sequence-service
+        - rabbit-mq-broker-segmenter
+    networks:
+        - mag-app
+  mag20-go-publisher-worker:
+    image: mag20/go-publisher-worker
+    container_name: mag20-go-publisher-worker
+    environment:
+        RABBIT_HOST: rabbit-mq-broker-segmenter
+        RABBIT_PORT: 5672
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        CHUNK_METADATA_GRPC_SERVER: mag20-chunks-metadata
+        CHUNK_METADATA_GRPC_PORT: 9003
+        TIMESHIFT_GRPC_SERVER: mag20-go-time-shift-api
+        TIMESHIFT_GRPC_PORT: 9004
+        SEQUENCE_SERVICE_GRPC_SERVER: mag20-sequence-service
+        SEQUENCE_SERVICE_GRPC_PORT: 9006
+        AWS_STORAGE_GRPC_SERVER: mag20-aws-storage
+        AWS_STORAGE_GRPC_PORT: 9001
+    depends_on:
+        - mag20-media-metadata
+        - mag20-sequence-service
+        - rabbit-mq-broker-segmenter
+        - mag20-aws-storage
+    networks:
+        - mag-app
+  mag20-go-image-worker:
+    image: mag20/go-image-worker
+    container_name: mag20-go-image-worker
+    environment:
+        RABBIT_HOST: rabbit-mq-broker-segmenter
+        RABBIT_PORT: 5672
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        TIMESHIFT_GRPC_SERVER: mag20-go-time-shift-api
+        TIMESHIFT_GRPC_PORT: 9004
+        AWS_STORAGE_GRPC_SERVER: mag20-aws-storage
+        AWS_STORAGE_GRPC_PORT: 9001
+    depends_on:
+        - mag20-media-metadata
+        - rabbit-mq-broker-segmenter
+        - mag20-aws-storage
+    networks:
+        - mag-app
+  mag20-go-media-segmenter-worker:
+    image: mag20/go-media-segmenter-worker
+    container_name: mag20-go-media-segmenter-worker
+    environment:
+        RABBIT_HOST: rabbit-mq-broker-segmenter
+        AWS_STORAGE_URL: http://mag20-aws-storage:8002/
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        CHUNK_METADATA_GRPC_SERVER: mag20-chunks-metadata
+        CHUNK_METADATA_GRPC_PORT: 9003
+        AWS_STORAGE_GRPC_SERVER: mag20-aws-storage
+        AWS_STORAGE_GRPC_PORT: 9001
+    depends_on:
+        - mag20-media-manager
+        - mag20-media-metadata
+        - mag20-aws-storage
+        - mag20-chunks-metadata
+        - rabbit-mq-broker-segmenter
+    networks:
+        - mag-app
+  mag20-go-media-cutter-worker:
+    image: mag20/go-media-cutter-worker
+    container_name: mag20-go-media-cutter-worker
+    environment:
+        RABBIT_HOST: rabbit-mq-broker-media-cutter
+        RABBIT_PORT: 5672
+        AWS_STORAGE_URL: http://mag20-aws-storage:8002/
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        CHUNK_METADATA_GRPC_SERVER: mag20-chunks-metadata
+        CHUNK_METADATA_GRPC_PORT: 9003
+        AWS_STORAGE_GRPC_SERVER: mag20-aws-storage
+        AWS_STORAGE_GRPC_PORT: 9001
+    depends_on:
+        - mag20-media-manager
+        - mag20-media-metadata
+        - mag20-aws-storage
+        - mag20-chunks-metadata
+        - rabbit-mq-broker-media-cutter
+    networks:
+        - mag-app
+  mag20-node-graphql:
+    image: mag20/node-graphql
+    container_name: mag20-node-graphql
+    ports:
+        - 3000:3000
+    environment:
+        PORT: 3000
+        NODE_ENV: develop
+        PROJECT_METADATA_GRPC_SERVER: mag20-project-metadata
+        PROJECT_METADATA_GRPC_PORT: 9005
+        MEDIA_METADATA_GRPC_SERVER: mag20-media-metadata
+        MEDIA_METADATA_GRPC_PORT: 9002
+        SEQUENCE_METADATA_GRPC_SERVER: mag20-sequence-service
+        SEQUENCE_METADATA_GRPC_PORT: 9006
+        SEQUENCE_MANAGER_URL: http://mag20-go-sequence-manager:8010/
+        PROJECT_MEDIA_MANAGER_URL: http://mag20-go-project-media-manager:8008/
+    depends_on:
+        - mag20-media-metadata
+        - mag20-sequence-service
+        - mag20-project-metadata
+        - mag20-go-project-media-manager
+    networks:
+        - mag-app
+  mag20-app-gui:
+    image: mag20/app-gui
+    container_name: mag20-app-gui
+    ports:
+        - 8080:80
+    networks:
+        - mag-app

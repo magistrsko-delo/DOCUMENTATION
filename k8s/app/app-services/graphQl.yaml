@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-gql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-gql
+  template:
+    metadata:
+      labels:
+        app: mag20-gql
+    spec:
+      containers:
+        - image: mag20/node-graphql
+          name: mag20-gql
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "develop"
+            - name: PROJECT_METADATA_GRPC_SERVER
+              value: mag20-project-metadata #
+            - name: PROJECT_METADATA_GRPC_PORT
+              value: "9005"
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: mag20-media-metadata
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: SEQUENCE_METADATA_GRPC_SERVER
+              value: mag20-sequence-service
+            - name: SEQUENCE_METADATA_GRPC_PORT
+              value: "9006"
+            - name: SEQUENCE_MANAGER_URL
+              value: http://mag20-sequence-manager:8010/
+            - name: PROJECT_MEDIA_MANAGER_URL
+              value: http://mag20-project-media-manager:8008/
+          ports:
+            - containerPort: 3000
+              name: gql-http
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-gql
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      name: "gql-http"
+      protocol: TCP
+      targetPort: gql-http
+  selector:
+    app: mag20-gql

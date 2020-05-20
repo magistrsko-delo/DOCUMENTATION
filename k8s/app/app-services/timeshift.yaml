@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-timeshift
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-timeshift
+  template:
+    metadata:
+      labels:
+        app: mag20-timeshift
+    spec:
+      containers:
+        - image: mag20/go-time-shift-api
+          name: mag20-timeshift
+          env:
+            - name: PORT
+              value: "9004"
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: mag20-media-metadata
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: CHUNK_METADATA_GRPC_SERVER
+              value: mag20-media-chunks
+            - name: CHUNK_METADATA_GRPC_PORT
+              value: "9003"
+            - name: SEQUENCE_SERVICE_GRPC_SERVER
+              value: mag20-sequence-service
+            - name: SEQUENCE_SERVICE_GRPC_PORT
+              value: "9006"
+            - name: MEDIA_MANAGER_URL
+              value: https://40.114.191.104/media-manager/
+            - name: CHUNK_DOWNLOADER_URL
+              value: https://40.114.191.104/chunk-downloader/
+          ports:
+            - containerPort: 9004
+              name: timeshift-grpc
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-timeshift
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9004
+      name: "timeshift-grpc"
+      protocol: TCP
+      targetPort: timeshift-grpc
+  selector:
+    app: mag20-timeshift

@@ -1,0 +1,35 @@
+istioctl manifest apply -f istio.aks.yaml --logtostderr --set installPackagePath=C:\Users\urosz\OneDrive\Magistersko_delo\PROGRAM\DOCUMENTATION\k8s\istio-1.5.0\install\kubernetes\operator\charts
+
+kubectl create -n istio-system secret generic httpbin-credential --from-file=key=httpbin.example.com.key --from-file=cert=httpbin.example.com.crt
+
+kubectl get svc --namespace istio-system --output wide
+
+kubectl get pods --namespace istio-system
+
+kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+istioctl dashboard prometheus
+
+istioctl dashboard grafana
+
+istioctl dashboard kiali
+
+istioctl dashboard envoy <pod-name>.<namespace>
+
+kubectl create namespace voting
+
+kubectl label namespace default istio-injection=enabled
+
+
+
+
+kubectl exec -it mag20-worker-cutter-59bf5cb74-tw9nr -c mag20-worker-cutter -- /bin/sh
+
+-------------------------------------------------------------------------------------------------
+az aks get-credentials --resource-group <resource-group> --name <clusterName>
+
+kubectl.exe exec -it <pod-name> -- /bin/sh
+
+gcloud builds submit --tag gcr.io/PROJECT-ID/helloworld
+
+-

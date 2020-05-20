@@ -1,0 +1,14 @@
+$GRAFANA_USERNAME=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("grafana"))
+$GRAFANA_PASSPHRASE=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("grafana"))
+
+"apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana
+  namespace: istio-system
+  labels:
+    app: grafana
+type: Opaque
+data:
+  username: $GRAFANA_USERNAME
+  passphrase: $GRAFANA_PASSPHRASE" | kubectl apply -f -

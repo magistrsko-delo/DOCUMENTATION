@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-hls-stream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-hls-stream
+  template:
+    metadata:
+      labels:
+        app: mag20-hls-stream
+    spec:
+      containers:
+        - image: mag20/go-hls-stream-player
+          name: mag20-hls-stream
+          env:
+            - name: PORT
+              value: "8006"
+            - name: URL
+              value: https://40.114.191.104/hls-stream/
+            - name: TIMESHIFT_GRPC_SERVER
+              value: mag20-timeshift
+            - name: TIMESHIFT_GRPC_PORT
+              value: "9004"
+          ports:
+            - containerPort: 8006
+              name: hls-http
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-hls-stream
+spec:
+  type: NodePort
+  ports:
+    - port: 8006
+      name: "hls-http"
+      protocol: TCP
+      targetPort: hls-http
+  selector:
+    app: mag20-hls-stream

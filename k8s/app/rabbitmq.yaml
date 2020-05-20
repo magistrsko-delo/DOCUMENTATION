@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-rmq
+spec:
+  selector:
+    app: mag20-rmq
+  ports:
+    - port: 15672
+      name: "manager"
+      protocol: TCP
+      targetPort: 15672
+    - port: 25672
+      name: "one"
+      protocol: TCP
+      targetPort: 25672
+    - port: 5672
+      name: "two"
+      protocol: TCP
+      targetPort: 5672
+    - port: 5671
+      name: "three"
+      protocol: TCP
+      targetPort: 5671
+    - port: 4369
+      name: "four"
+      protocol: TCP
+      targetPort: 4369
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mag20-rmq
+spec:
+  selector:
+    matchLabels:
+      app: mag20-rmq
+  serviceName: "mag20-rmq"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mag20-rmq
+    spec:
+      containers:
+      - name: mag20-rmq
+        image: rabbitmq:management
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: uros
+          - name: RABBITMQ_DEFAULT_PASS
+            value: uros123
+        ports:
+        - containerPort: 25672
+        - containerPort: 5672
+        - containerPort: 5671
+        - containerPort: 4369
+        - containerPort: 15672

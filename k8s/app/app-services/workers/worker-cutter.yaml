@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-worker-cutter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-worker-cutter
+  template:
+    metadata:
+      labels:
+        app: mag20-worker-cutter
+    spec:
+      containers:
+        - image: mag20/go-media-cutter-worker
+          name: mag20-worker-cutter
+          env:
+            - name: RABBIT_HOST
+              value: "51.138.118.235"
+            - name: RABBIT_PORT
+              value: "5672"
+            - name: AWS_STORAGE_URL
+              value: http://40.114.191.104/aws/
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: "52.143.27.127"
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: CHUNK_METADATA_GRPC_SERVER
+              value: "20.50.45.144"
+            - name: CHUNK_METADATA_GRPC_PORT
+              value: "9003"
+            - name: AWS_STORAGE_GRPC_SERVER
+              value: "52.143.9.202"
+            - name: AWS_STORAGE_GRPC_PORT
+              value: "9001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-worker-cutter
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4003
+      name: "worker-cutter"
+      protocol: TCP
+  selector:
+    app: mag20-worker-cutter

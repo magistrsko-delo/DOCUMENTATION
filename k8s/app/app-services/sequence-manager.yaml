@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-sequence-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-sequence-manager
+  template:
+    metadata:
+      labels:
+        app: mag20-sequence-manager
+    spec:
+      containers:
+        - image: mag20/go-sequence-manager
+          name: mag20-sequence-manager
+          env:
+            - name: PORT
+              value: "8010"
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: mag20-media-metadata
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: SEQUENCE_SERVICE_GRPC_SERVER
+              value: mag20-sequence-service
+            - name: SEQUENCE_SERVICE_GRPC_PORT
+              value: "9006"
+            - name: RABBIT_HOST
+              value: mag20-rmq
+            - name: RABBIT_PORT
+              value: "5672"
+          ports:
+            - containerPort: 8010
+              name: seq-man-http
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-sequence-manager
+spec:
+  type: NodePort
+  ports:
+    - port: 8010
+      name: "seq-man-http"
+      protocol: TCP
+      targetPort: seq-man-http
+  selector:
+    app: mag20-sequence-manager

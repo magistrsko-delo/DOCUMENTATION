@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-aws-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-aws-storage
+  template:
+    metadata:
+      labels:
+        app: mag20-aws-storage
+    spec:
+      containers:
+        - image: mag20/aws-storage:latest
+          name: mag20-aws-storage
+          env:
+            - name: KUMULUZEE_DISCOVERY_ETCD_HOSTS
+              value: http://etcd:2379
+            - name: KUMULUZEE_CONFIG_ETCD_HOSTS
+              value: http://etcd:2379
+          ports:
+            - containerPort: 8002
+              name: aws-http
+              protocol: TCP
+            - containerPort: 9001
+              name: aws-grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-aws-storage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8002
+      name: "aws-http"
+      protocol: TCP
+      targetPort: aws-http
+    - port: 9001
+      name: "aws-grpc"
+      protocol: TCP
+      targetPort: aws-grpc
+  selector:
+    app: mag20-aws-storage

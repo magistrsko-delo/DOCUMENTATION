@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-media-chunks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-media-chunks
+  template:
+    metadata:
+      labels:
+        app: mag20-media-chunks
+    spec:
+      containers:
+        - image: mag20/chunks-metadata
+          name: mag20-media-chunks
+          env:
+            - name: KUMULUZEE_DISCOVERY_ETCD_HOSTS
+              value: http://etcd:2379
+            - name: KUMULUZEE_CONFIG_ETCD_HOSTS
+              value: http://etcd:2379
+          ports:
+            - containerPort: 8004
+              name: chunks-http
+              protocol: TCP
+            - containerPort: 9003
+              name: chunks-grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-media-chunks
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8004
+      name: "chunks-http"
+      protocol: TCP
+      targetPort: chunks-http
+    - port: 9003
+      name: "chunks-grpc"
+      protocol: TCP
+      targetPort: chunks-grpc
+  selector:
+    app: mag20-media-chunks

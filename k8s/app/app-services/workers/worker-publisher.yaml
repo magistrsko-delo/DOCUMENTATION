@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-worker-publisher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-worker-publisher
+  template:
+    metadata:
+      labels:
+        app: mag20-worker-publisher
+    spec:
+      containers:
+        - image: mag20/go-publisher-worker
+          name: mag20-worker-publisher
+          env:
+            - name: RABBIT_HOST
+              value: "51.138.118.235"
+            - name: RABBIT_PORT
+              value: "5672"
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: "52.143.27.127"
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+            - name: CHUNK_METADATA_GRPC_SERVER
+              value: "20.50.45.144"
+            - name: CHUNK_METADATA_GRPC_PORT
+              value: "9003"
+            - name: TIMESHIFT_GRPC_SERVER
+              value: "51.105.213.37"
+            - name: TIMESHIFT_GRPC_PORT
+              value: "9004"
+            - name: SEQUENCE_SERVICE_GRPC_SERVER
+              value: "51.124.62.243"
+            - name: SEQUENCE_SERVICE_GRPC_PORT
+              value: "9006"
+            - name: AWS_STORAGE_GRPC_SERVER
+              value: "52.143.9.202"
+            - name: AWS_STORAGE_GRPC_PORT
+              value: "9001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-worker-publisher
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4000
+      name: "worker-publisher"
+      protocol: TCP
+  selector:
+    app: mag20-worker-publisher

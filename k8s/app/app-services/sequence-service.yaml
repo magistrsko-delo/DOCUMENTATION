@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-sequence-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-sequence-service
+  template:
+    metadata:
+      labels:
+        app: mag20-sequence-service
+    spec:
+      containers:
+        - image: mag20/sequence-service
+          name: mag20-sequence-service
+          env:
+            - name: KUMULUZEE_DISCOVERY_ETCD_HOSTS
+              value: http://etcd:2379
+            - name: KUMULUZEE_CONFIG_ETCD_HOSTS
+              value: http://etcd:2379
+          ports:
+            - containerPort: 8009
+              name: sequence-http
+              protocol: TCP
+            - containerPort: 9006
+              name: sequence-grpc
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-sequence-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8009
+      name: "sequence-http"
+      protocol: TCP
+      targetPort: sequence-http
+    - port: 9006
+      name: "sequence-grpc"
+      protocol: TCP
+      targetPort: sequence-grpc
+  selector:
+    app: mag20-sequence-service

@@ -27,9 +27,10 @@ kubectl exec -it mag20-worker-cutter-59bf5cb74-tw9nr -c mag20-worker-cutter -- /
 
 -------------------------------------------------------------------------------------------------
 az aks get-credentials --resource-group <resource-group> --name <clusterName>
+az aks get-credentials --resource-group urosGroup --name magApp
 
 kubectl.exe exec -it <pod-name> -- /bin/sh
 
-gcloud builds submit --tag gcr.io/PROJECT-ID/helloworld
+gcloud builds submit --tag gcr.io/magisterij/mag-guiv2
 
 -

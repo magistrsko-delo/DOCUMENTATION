@@ -31,9 +31,9 @@ spec:
             - name: SEQUENCE_SERVICE_GRPC_PORT
               value: "9006"
             - name: MEDIA_MANAGER_URL
-              value: https://40.114.191.104/media-manager/
+              value: https://20.50.41.82/media-manager/
             - name: CHUNK_DOWNLOADER_URL
-              value: https://40.114.191.104/chunk-downloader/
+              value: https://20.50.41.82/chunk-downloader/
           ports:
             - containerPort: 9004
               name: timeshift-grpc

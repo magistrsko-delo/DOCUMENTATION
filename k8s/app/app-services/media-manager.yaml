@@ -51,13 +51,13 @@ spec:
             httpGet:
               path: /health/live
               port: manager-http
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 3
           readinessProbe:
             httpGet:
               path: /health/ready
               port: manager-http
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 3
 ---
 apiVersion: v1

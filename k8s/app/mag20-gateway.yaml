@@ -130,6 +130,27 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
+  name: project-media-manager-health
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - mag20-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /project-media-manager-health/
+    rewrite:
+        uri: "/"
+    route:
+    - destination:
+        port:
+          number: 8888
+        host: mag20-project-media-manager
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
   name: sequence-manager
 spec:
   hosts:
@@ -194,6 +215,27 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
+  name: chunk-downloader-health
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - mag20-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /chunk-downloader-health/
+    rewrite:
+        uri: "/"
+    route:
+    - destination:
+        port:
+          number: 8888
+        host: mag20-chunks-downloader
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
   name: hls-stream
 spec:
   hosts:
@@ -210,6 +252,27 @@ spec:
     - destination:
         port:
           number: 8006
+        host: mag20-hls-stream
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: hls-stream-health
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - mag20-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /hls-stream-health/
+    rewrite:
+        uri: "/"
+    route:
+    - destination:
+        port:
+          number: 8888
         host: mag20-hls-stream
 ---
 apiVersion: networking.istio.io/v1alpha3

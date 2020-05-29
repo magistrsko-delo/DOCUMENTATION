@@ -36,9 +36,29 @@ spec:
               value: mag20-media-metadata
             - name: KUMULUZEE_GRPC_CLIENTS1_PORT
               value: "9002"
+            - name: KUMULUZEE_HEALTH_CHECKS_ETCDHEALTHCHECK_CONNECTIONURL
+              value: http://etcd:2379/health
+            - name: KUMULUZEE_HEALTH_CHECKS_RABBITHEALTHCHECK_CONNECTIONURL
+              value: amqp://uros:uros123@mag20-rmq:5672
+            - name: KUMULUZEE_OPENTRACING_JAEGER_AGENTHOST
+              value: jaeger-agent.istio-system
+            - name: KUMULUZEE_OPENTRACING_JAEGER_SAMPLER_HTTPHOSTPORT
+              value: http://jaeger-agent.istio-system:5775
           ports:
             - containerPort: 8003
               name: manager-http
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: manager-http
+            initialDelaySeconds: 60
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: manager-http
+            initialDelaySeconds: 60
+            periodSeconds: 3
 ---
 apiVersion: v1
 kind: Service

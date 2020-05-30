@@ -1,0 +1,13 @@
+## Docker utilities
+
+* remove untaged images
+``` 
+docker rmi $(docker images -f “dangling=true” -q)
+```
+
+* docker compose  
+``` 
+docker-compose up -d  
+docker-compose stop
+docker-compose pull
+```

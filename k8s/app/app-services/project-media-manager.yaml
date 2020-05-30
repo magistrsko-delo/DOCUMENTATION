@@ -34,6 +34,8 @@ spec:
               value: mag20-rmq
             - name: RABBIT_PORT
               value: "5672"
+            - name: TRACING_CONNECTION
+              value: "jaeger-agent.istio-system:5775"
           ports:
             - containerPort: 8008
               name: p-media

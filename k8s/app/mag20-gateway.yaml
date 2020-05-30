@@ -314,3 +314,24 @@ spec:
         port:
           number: 3000
         host: mag20-gql
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: gql-health
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - mag20-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /gql-health/
+    rewrite:
+        uri: "/"
+    route:
+    - destination:
+        port:
+          number: 3000
+        host: mag20-gql

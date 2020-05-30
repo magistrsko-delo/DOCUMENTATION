@@ -21,9 +21,9 @@ spec:
             - name: KUMULUZEE_CONFIG_ETCD_HOSTS
               value: http://etcd:2379
             - name: KUMULUZEE_OPENTRACING_JAEGER_AGENTHOST
-              value: jaeger-agent.istio-system
+              value: "jaeger-agent.istio-system"
             - name: KUMULUZEE_OPENTRACING_JAEGER_SAMPLER_HTTPHOSTPORT
-              value: http://jaeger-agent.istio-system:5775
+              value: http://jaeger-collector.istio-system:14268/api/traces
           ports:
             - containerPort: 8004
               name: chunks-http

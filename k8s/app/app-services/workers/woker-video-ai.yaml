@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mag20-worker-video-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mag20-worker-video-ai
+  template:
+    metadata:
+      labels:
+        app: mag20-worker-video-ai
+    spec:
+      containers:
+        - image: mag20/go-video-analysis-worker
+          name: mag20-worker-video-ai
+          env:
+            - name: RABBIT_HOST
+              value: "40.114.171.212"
+            - name: RABBIT_PORT
+              value: "5672"
+            - name: AWS_STORAGE_URL
+              value: https://20.50.41.82/aws/
+            - name: MEDIA_METADATA_GRPC_SERVER
+              value: "20.50.33.248"
+            - name: MEDIA_METADATA_GRPC_PORT
+              value: "9002"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mag20-worker-video-ai
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4003
+      name: "worker-cutter"
+      protocol: TCP
+  selector:
+    app: mag20-worker-cutter

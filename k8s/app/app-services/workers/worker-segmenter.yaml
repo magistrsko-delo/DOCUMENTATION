@@ -17,21 +17,21 @@ spec:
           name: mag20-worker-segmenter
           env:
             - name: RABBIT_HOST
-              value: "40.114.171.212"
+              value: "51.116.109.40"
             - name: RABBIT_PORT
               value: "5672"
             - name: AWS_STORAGE_URL
-              value: https://20.50.41.82/aws/
+              value: https://51.116.109.32/aws/
             - name: MEDIA_METADATA_GRPC_SERVER
-              value: "20.50.33.248"
+              value: "51.116.109.53"
             - name: MEDIA_METADATA_GRPC_PORT
               value: "9002"
             - name: CHUNK_METADATA_GRPC_SERVER
-              value: "20.50.34.65"
+              value: "51.116.97.118"
             - name: CHUNK_METADATA_GRPC_PORT
               value: "9003"
             - name: AWS_STORAGE_GRPC_SERVER
-              value: "20.50.233.218"
+              value: "51.116.109.69"
             - name: AWS_STORAGE_GRPC_PORT
               value: "9001"
           livenessProbe:

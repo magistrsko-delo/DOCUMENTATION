@@ -1,0 +1,17 @@
+NAME                          TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)                                                                        AGE
+etcd                          NodePort       10.0.222.163   <none>           2379:32075/TCP                                                                 132m
+kubernetes                    ClusterIP      10.0.0.1       <none>           443/TCP                                                                        146m
+mag20-aws-storage             LoadBalancer   10.0.116.157   51.116.109.69    8002:31638/TCP,9001:31333/TCP                                                  117m
+mag20-chunks-downloader       NodePort       10.0.238.150   <none>           8005:31039/TCP,8888:30256/TCP                                                  78m
+mag20-etcd-viewer             LoadBalancer   10.0.119.107   51.116.108.249   9080:30359/TCP                                                                 130m
+mag20-gql                     NodePort       10.0.239.11    <none>           3000:30029/TCP                                                                 25m
+mag20-hls-stream              NodePort       10.0.54.250    <none>           8006:30393/TCP,8888:31714/TCP                                                  54m
+mag20-media-chunks            LoadBalancer   10.0.28.199    51.116.97.118    8004:30460/TCP,9003:30939/TCP                                                  89m
+mag20-media-manager           NodePort       10.0.65.17     <none>           8003:30008/TCP                                                                 84m
+mag20-media-metadata          LoadBalancer   10.0.60.157    51.116.109.53    8001:32509/TCP,9002:31037/TCP                                                  98m
+mag20-project-media-manager   NodePort       10.0.224.183   <none>           8008:32306/TCP,8888:31585/TCP                                                  40m
+mag20-project-metadata        NodePort       10.0.144.183   <none>           8007:30369/TCP,9005:30839/TCP                                                  46m
+mag20-rmq                     LoadBalancer   10.0.38.96     51.116.109.40    15672:32142/TCP,25672:30620/TCP,5672:30644/TCP,5671:31652/TCP,4369:31349/TCP   127m
+mag20-sequence-manager        NodePort       10.0.85.224    <none>           8010:31445/TCP,8888:30530/TCP                                                  34m
+mag20-sequence-service        LoadBalancer   10.0.14.243    51.116.109.98    8009:30834/TCP,9006:30041/TCP                                                  64m
+mag20-timeshift               LoadBalancer   10.0.174.206   51.116.138.198   9004:32417/TCP                                                                 58m

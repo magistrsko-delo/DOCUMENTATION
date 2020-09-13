@@ -17,19 +17,19 @@ spec:
           name: mag20-worker-image
           env:
             - name: RABBIT_HOST
-              value: "40.114.171.212"
+              value: "51.116.109.40"
             - name: RABBIT_PORT
               value: "5672"
             - name: MEDIA_METADATA_GRPC_SERVER
-              value: "20.50.33.248"
+              value: "51.116.109.53"
             - name: MEDIA_METADATA_GRPC_PORT
               value: "9002"
             - name: TIMESHIFT_GRPC_SERVER
-              value: "52.143.10.61"
+              value: "51.116.138.198"
             - name: TIMESHIFT_GRPC_PORT
               value: "9004"
             - name: AWS_STORAGE_GRPC_SERVER
-              value: "20.50.233.218"
+              value: "51.116.109.69"
             - name: AWS_STORAGE_GRPC_PORT
               value: "9001"
           livenessProbe:

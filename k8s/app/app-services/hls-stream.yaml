@@ -19,7 +19,7 @@ spec:
             - name: PORT
               value: "8006"
             - name: URL
-              value: https://20.50.41.82/hls-stream/
+              value: https://51.116.109.32/hls-stream/
             - name: TIMESHIFT_GRPC_SERVER
               value: mag20-timeshift
             - name: TIMESHIFT_GRPC_PORT

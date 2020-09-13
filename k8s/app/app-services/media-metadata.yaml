@@ -24,6 +24,8 @@ spec:
               value: "jaeger-agent.istio-system"
             - name: KUMULUZEE_OPENTRACING_JAEGER_SAMPLER_HTTPHOSTPORT
               value: http://jaeger-collector.istio-system:14268/api/traces
+            - name: KUMULUZEE_DATASOURCES0_CONNECTIONURL
+              value: jdbc:mysql://mag-uros20.cd0nfxw2grsa.eu-central-1.rds.amazonaws.com:3306/Media
           ports:
             - containerPort: 8001
               name: media-meta-http

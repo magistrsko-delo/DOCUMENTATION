@@ -17,7 +17,7 @@ spec:
           name: mag20-worker-publisher
           env:
             - name: RABBIT_HOST
-              value: "40.114.171.212"
+              value: "51.116.109.40"
             - name: RABBIT_PORT
               value: "5672"
             - name: RABBIT_QUEUE_WORKER
@@ -25,23 +25,23 @@ spec:
             - name: RABBIT_QUEUE_VIDEO_ANALYSIS
               value: "VIDEO_ANALYSIS_QUEUE"
             - name: MEDIA_METADATA_GRPC_SERVER
-              value: "20.50.33.248"
+              value: "51.116.109.53"
             - name: MEDIA_METADATA_GRPC_PORT
               value: "9002"
             - name: CHUNK_METADATA_GRPC_SERVER
-              value: "20.50.34.65"
+              value: "51.116.97.118"
             - name: CHUNK_METADATA_GRPC_PORT
               value: "9003"
             - name: TIMESHIFT_GRPC_SERVER
-              value: "52.143.10.61"
+              value: "51.116.138.198"
             - name: TIMESHIFT_GRPC_PORT
               value: "9004"
             - name: SEQUENCE_SERVICE_GRPC_SERVER
-              value: "52.143.8.185"
+              value: "51.116.109.98"
             - name: SEQUENCE_SERVICE_GRPC_PORT
               value: "9006"
             - name: AWS_STORAGE_GRPC_SERVER
-              value: "20.50.233.218"
+              value: "51.116.109.69"
             - name: AWS_STORAGE_GRPC_PORT
               value: "9001"
           livenessProbe:

@@ -32,5 +32,5 @@ az aks get-credentials --resource-group urosGroup --name magApp
 kubectl.exe exec -it <pod-name> -- /bin/sh
 
 gcloud builds submit --tag gcr.io/magisterij/mag-guiv2
-
--
+gcloud builds submit --tag gcr.io/[PROJECT_ID]/[IMAGE_NAME] .
+gcloud builds submit --tag gcr.io/calcium-ember-289409/mag-gui .
